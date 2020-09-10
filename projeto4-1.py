@@ -3,6 +3,7 @@ from tkinter import filedialog as dlg
 import csv
 import matplotlib.pyplot as plt
 from fpdf import FPDF
+import pathlib
 import os
 from tkinter import filedialog
 from tkinter.filedialog import asksaveasfile, askopenfilename
@@ -23,6 +24,7 @@ dadosComEtiqueta:dict = {}
 testeDeErro:bool = False
 dicioParaCabecalho:dict = {}
 cabecalhoDeEtiqueta:str = ""
+pdfPath = ""
 
 class janelaPricipal:
 
@@ -96,9 +98,9 @@ class janelaPricipal:
 
         self.instrucoesDeUso = Label(self.quintoBloco, text=' Instruções gerais para uso:\n'
                                                             ' \n'
-                                                            '  1) Você precisa inserir o Título e a descricão do relatorio; \n'
-                                                            '  2) Você vai precisar inserir os cabecalhos da mesma forma que estão descritos na planilha; \n'
-                                                            '  3) Você poderá selecionar os itens que deseja compor o relatório; \n'
+                                                            '  1) Você precisa inserir o Título e a Descricão do relatório; \n'
+                                                            '  2) Você vai precisar inserir os cabeçalhos da mesma forma que estão descritos na planilha; \n'
+                                                            '  3) Você poderá selecionar os cabeçalhos para compor o relatório; \n'
                                                             '  4) Escolha se deseja gerar um arquivo txt ou pdf;\n ',
                                      justify=LEFT,
                                      bd=1,
@@ -121,14 +123,14 @@ class janelaPricipal:
             tituloGlobal = t1
             descricaoGlobal = d2
             self.janelaP.destroy()
-            janelaDeCabecalho() # aqui CHAMA JANELA DE INTES
-            #print(tituloGlobal,descricaoGlobal)
+            janelaDeCabecalho()
+
         else:
             self.mensagem["text"] = "Insira o Título e/ou a Descrição do Relatório"
             self.mensagem["font"] = ("Heveltica", "10")
 
 
-class janelaDeCabecalho():   # JANELA PARA INSERIR CABECALHO, DEVE VIR ANTES DA SELECAO
+class janelaDeCabecalho():
 
     def __init__(self):
 
@@ -269,17 +271,11 @@ class janelaDeCabecalho():   # JANELA PARA INSERIR CABECALHO, DEVE VIR ANTES DA 
         except IndexError:
             pass
 
-        print(cabecalhosAdicionados)
-        #value = str((enfimLista.get(ACTIVE)))
-        #p#rint(value)
 
 
     def voltarPrincipal(self):
         global cabecalhosAdicionados
 
-        #index = list(self.enfimLista.get(0, "end").index("value1"))
-        #cabecalhosAdicionados.remove(index)
-        #print("teste")
 
         self.janela3.destroy()
         cabecalhosAdicionados = []
@@ -291,7 +287,7 @@ class janelaDeCabecalho():   # JANELA PARA INSERIR CABECALHO, DEVE VIR ANTES DA 
         janelaSecundaria()
         self.janela3.destroy()
 
-class janelaSecundaria(): # CHAMAR JANELA DE SELECAO
+class janelaSecundaria():
 
     def __init__(self):
         self.janela2 = Tk()
@@ -357,6 +353,7 @@ class janelaSecundaria(): # CHAMAR JANELA DE SELECAO
 
         global caminhoDeArquivo
         global  testeDeErro
+        global pdfPath
 
         Tk().withdraw()
 
@@ -364,16 +361,14 @@ class janelaSecundaria(): # CHAMAR JANELA DE SELECAO
         local = askopenfilename(title="Abrir arquivo.csv")
         caminhoDeArquivo = local
 
+        csvPath = pathlib.Path(local)
+        pdfPath = csvPath.parent
+
         if local:
 
             self.nomeArquivo["text"] = local
-
             self.nomeArquivo.pack(side=TOP)
-
-
             self.proximaEtapa["command"] = self.processar
-
-
             self.janela2.mainloop()
 
     def processar(self):  # FECHAR ESSA JANELA
@@ -413,7 +408,7 @@ class janelaSecundaria(): # CHAMAR JANELA DE SELECAO
 
                 listaCabecalhoGlobal = listaCabecalho
 
-            print(dadosPlanilhaGlobal)
+            #print(dadosPlanilhaGlobal)
             #janelaDeCheckBook()
             janelaDeEtiquetas()
 
@@ -427,7 +422,7 @@ class chamarJanelaDeErro:
     def __init__(self):
 
             self.janeladeErro = Tk()
-            self.janeladeErro.geometry("800x100")
+            self.janeladeErro.geometry("700x100")
             self.janeladeErro.title("ERRO")
             self.janeladeErro.attributes("-topmost", True)
 
@@ -437,7 +432,7 @@ class chamarJanelaDeErro:
             self.blocoDoErrinho.pack()
 
             self.mensagemErro = Label(self.blocoDoErrinho)
-            self.mensagemErro["text"] = "Ocorreu um problema ao ler seu arquivo, ou ele está em um formato não aceito. Volte para janela de Selecionar Arquivo"
+            self.mensagemErro["text"] = "Ocorreu um problema ao ler seu arquivo, ou ele está em um formato não aceito. Volte para janela de seleção"
             self.mensagemErro.pack()
 
             # 2 container
@@ -480,7 +475,7 @@ class janelaDeEtiquetas:
         self.segundoEtiqueta.pack(side=TOP)
 
         dicioParaCabecalho = cabecalhosAdicionados
-        print(cabecalhosAdicionados)
+        #print(cabecalhosAdicionados)
 
 
         # 3 container
@@ -518,7 +513,7 @@ class janelaDeEtiquetas:
         self.botaoSeguir.pack(side=RIGHT)
 
         self.botaoCancelar = Button(self.terceiroEtiqueta)
-        self.botaoCancelar["text"] = "Não"
+        self.botaoCancelar["text"] = "NÃO"
         self.botaoCancelar["width"] = 12
         self.botaoCancelar["command"] = self.chamarCheckSemEtiqueta
         self.botaoCancelar.pack(side=LEFT)
@@ -553,7 +548,7 @@ class janelaDeEtiquetas:
             aEtiqueta = self.listaEtiqueta.get(posicaoEtiqueta)
 
             cabecalhoDeEtiqueta = aEtiqueta
-            print(aEtiqueta)
+            #print(aEtiqueta)
 
             self.janelaEtiqueta.destroy()
             janelaDeCheckBook()
@@ -568,14 +563,14 @@ class janelaDeEtiquetas:
         cabecalhoDeEtiqueta = "1/*-/123434543"
         self.janelaEtiqueta.destroy()
         janelaDeCheckBook()
-        #print(cabecalhoDeEtiqueta)
+
 
 class janelaDeCheckBook:
 
     def __init__(self):
         self.janelaCheck = Tk()
         self.janelaCheck.title("Selecionar Partes")
-        self.janelaCheck.geometry("600x670")
+        self.janelaCheck.geometry("600x700")
 
 
         # 1 container
@@ -600,8 +595,6 @@ class janelaDeCheckBook:
         self.segundoBloco4.pack()
 
         listaCheck = cabecalhosAdicionados
-        print("primeirao teste cabecalhos adicionados",cabecalhosAdicionados)
-        print("segundo teste cabecalhos selecionados",listaDecabecalhosSelecionados)
 
         # 3 container
 
@@ -609,6 +602,26 @@ class janelaDeCheckBook:
         self.terceiroBloco4.pack()
 
         self.labelInserir = Label(self.terceiroBloco4)
+
+        # 6 container
+
+        self.sextoBloco5 = Frame(self.janelaCheck)
+        self.sextoBloco5.pack()
+
+        self.cabDispo = Label(self.sextoBloco5)
+        self.cabDispo["padx"] = 60
+        self.cabDispo["text"] = "Cabeçalhos Disponíveis"
+        self.cabDispo["font"] = ("Heveltica", "10")
+        self.cabDispo.pack(side=LEFT)
+
+        self.cabeSelect = Label(self.sextoBloco5)
+        self.cabeSelect["padx"] = 60
+        self.cabeSelect["text"] = "Cabeçalhos Selecionados"
+        self.cabeSelect["font"] = ("Heveltica", "10")
+        self.cabeSelect.pack(side=RIGHT)
+
+
+
 
         # container espcial
         self.frame1 = Frame(self.janelaCheck)
@@ -680,10 +693,10 @@ class janelaDeCheckBook:
 
         self.instrucoesDeUso = Label(self.quintoBloco4, text=' Instruções para gerar relatório:\n'
                                                             ' \n'
-                                                            '  1) Se você não inseriu cabeçalhos, seu relatório será vazio; \n'
-                                                            '  2) Você pode escolher o cabeçalho que deseja e gerar um relatório a partir dele; \n'
-                                                            '  3) Escolha se deseja gerar um arquivo txt ou pdf; \n'
-                                                            '  4) Se voce escolher gerar um relatório PDF ele será salvo no local do programa;\n ',
+                                                            '  1) Se você não tiver inserido cabeçalhos, o relatório criado estara em branco; \n'
+                                                            '  2) Você pode inserir os cabeçalhos da esquerda para a direita; \n'
+                                                            '  3) Você poderá selecionar os cabeçalhos que deseja compor o relatório; \n'
+                                                            '  4) Escolha se deseja gerar um arquivo txt ou pdf;\n ',
                                      justify=LEFT,
                                      bd=1,
                                      relief=GROOVE,
@@ -701,12 +714,12 @@ class janelaDeCheckBook:
             item1 = self.enfimLista1.curselection()[0]
             nomeDoItem1 = self.enfimLista1.get(item1)
             self.rotuloItem1.set(nomeDoItem1)
-            print(nomeDoItem1)
+
             if nomeDoItem1 in cabecalhosAdicionados:
 
 
                 listaDecabecalhosSelecionados.append(nomeDoItem1)
-                print(listaDecabecalhosSelecionados, "Inserir na listadecabecalhoselecionados")
+
                 self.enfimLista1.delete(item1)
                 self.enfimLista2.insert(END, nomeDoItem1)
 
@@ -727,8 +740,7 @@ class janelaDeCheckBook:
             self.enfimLista1.insert(END,nomeDoItem2)
             self.rotuloItem2.set(nomeDoItem2)
             listaDecabecalhosSelecionados.remove(nomeDoItem2)
-            print(nomeDoItem2)
-            print("remover intem" ,listaDecabecalhosSelecionados)
+
 
 
 
@@ -736,8 +748,8 @@ class janelaDeCheckBook:
 
 
 
-                listaDecabecalhosSelecionados.remove(nomeDoItem2) # remover de intes selecionados
-                print(listaDecabecalhosSelecionados, "Remover 12")
+                listaDecabecalhosSelecionados.remove(nomeDoItem2)
+
                 self.enfimLista2.delete(item2)
                 self.enfimLista1.insert(END, nomeDoItem2)
 
@@ -746,27 +758,22 @@ class janelaDeCheckBook:
         except (IndexError,ValueError ):
             pass
 
-            print(listaDecabecalhosSelecionados)
+
 
             self.var = 1
 
 
 
-    def geracaoRelatorio(self):  #gerar relatorio, falta justificar e adicionar codigo em cada
+    def geracaoRelatorio(self):
         salvo = False
         global cabecalhoDeEtiqueta
         global cabecalhosSelecionados
         global listaDecabecalhosSelecionados
 
-        #print(dadosPlanilhaGlobal["RQ1"])
-        #print(listaDecabecalhosSelecionados , "TESTE GERACAORELATORIO")
-        #print(cabecalhosSelecionados)
 
         cabecalhosSelecionados= {}
 
         etiqueta = (str(cabecalhoDeEtiqueta))
-
-        print("testando etquieta", cabecalhoDeEtiqueta)
 
 
 
@@ -774,9 +781,7 @@ class janelaDeCheckBook:
 
         for q in range (0,len(listaDecabecalhosSelecionados)):
             cabecalhosSelecionados[listaDecabecalhosSelecionados[q]] = 1
-            #print(cabecalhosSelecionados)
 
-        print("teste cabecalhos selecionas",cabecalhosSelecionados)
 
         arquivo = filedialog.asksaveasfile(mode='w',initialfile = "Relatorio txt - 01", defaultextension=".txt")
         try:
@@ -788,13 +793,13 @@ class janelaDeCheckBook:
                 if cabecalhosSelecionados[key] == 1:
 
                     if key in dadosPlanilhaGlobal:
-                        print(key)
+
                         if etiqueta in dadosPlanilhaGlobal:
                             if cabecalhoDeEtiqueta in dadosPlanilhaGlobal:
                                 valoresDaKey = dadosPlanilhaGlobal[key]
-                                #print(valoresEtiqueta)
+
                                 valoresEtiqueta = dadosPlanilhaGlobal[cabecalhoDeEtiqueta]
-                                print(valoresDaKey)
+
                                 for t in range (0,len(valoresDaKey)):
                                     valoresDaKey[t] = valoresDaKey[t]
                                     concatena = concatena + valoresEtiqueta[t] +":"+ (valoresDaKey[t]).replace("\n", " ") + "\n"
@@ -803,13 +808,12 @@ class janelaDeCheckBook:
                                 arquivo.write("\n")
                                 arquivo.write("\n")
                                 salvo = TRUE
-                                print("print com etqieuta")
+
 
                         else:
 
                             valoresDaKey = dadosPlanilhaGlobal[key]
-                            print(valoresDaKey)
-                            print("teste sem etiqueta")
+
                             for z in range(0, len(valoresDaKey)):
                                 ordem = str(z+1)
                                 concatena = concatena  + ordem + ": " + (valoresDaKey[z]).replace("\n", " ") + "\n"
@@ -818,7 +822,7 @@ class janelaDeCheckBook:
                             arquivo.write("\n")
                             arquivo.write("\n")
                             salvo = TRUE
-                            print("print sem etqieuta")
+
 
 
 
@@ -836,7 +840,6 @@ class janelaDeCheckBook:
                 self.janelaDeSalvo = Tk()
                 self.janelaDeSalvo.title("Arquivo Salvo")
                 self.janelaDeSalvo.geometry("200x100")
-
                 self.blocoSalvo = Frame(self.janelaDeSalvo)
                 self.blocoSalvo["pady"] = 20
                 self.blocoSalvo.pack()
@@ -852,14 +855,11 @@ class janelaDeCheckBook:
                 self.botaoFecharSalvo.pack()
 
                 arquivo = ""
-                print("foi savlo")
+
                 salvo = False
-                #self.limparSelecionados()
+
         except:
             pass
-
-    # pathlib.Path.is_file()
-
 
 
 
@@ -870,11 +870,12 @@ class janelaDeCheckBook:
         salvo = False
         global cabecalhoDeEtiqueta
         global cabecalhosSelecionados
-        print(listaDecabecalhosSelecionados, "TESTE GERACAORELATORIO PFDF")
-        print(cabecalhosSelecionados
-              )
+        global pdfPath
+
+
         etiqueta = (str(cabecalhoDeEtiqueta))
-        print("testando etquieta", cabecalhoDeEtiqueta)
+
+
 
         Tk().withdraw()
 
@@ -882,10 +883,9 @@ class janelaDeCheckBook:
             cabecalhosSelecionados[listaDecabecalhosSelecionados[q]] = 1
 
         arquivoT = open("relatorioT.txt", "w")
-        #arquivo = filedialog.asksaveasfile(mode='w', initialfile="Relatorio txt - 01", defaultextension=".txt")
+
         try:
-            #arquivoT.write(tituloGlobal + "\n")
-            #arquivoT.write(descricaoGlobal + "\n")
+
 
             for key in cabecalhosSelecionados:
                 concatena = ""
@@ -896,7 +896,7 @@ class janelaDeCheckBook:
                             if cabecalhoDeEtiqueta in dadosPlanilhaGlobal:
                                 valoresDaKey = dadosPlanilhaGlobal[key]
                                 valoresEtiqueta = dadosPlanilhaGlobal[cabecalhoDeEtiqueta]
-                                print(valoresDaKey)
+                                #print(valoresDaKey)
                                 for k in range(0, len(valoresDaKey)):
                                     concatena = concatena + valoresEtiqueta[k] + ":" + (valoresDaKey[k]).replace("\n", " ") + "\n"
                                 arquivoT.write(key + ":" + "\n")
@@ -904,13 +904,13 @@ class janelaDeCheckBook:
                                 arquivoT.write("\n")
                                 arquivoT.write("\n")
                                 salvo = TRUE
-                                print("print com etqieuta")
+
 
                         else:
 
                             valoresDaKey = dadosPlanilhaGlobal[key]
-                            print(valoresDaKey)
-                            print("teste sem etiqueta")
+                            #print(valoresDaKey)
+                            #print("teste sem etiqueta")
                             for p in range(0, len(valoresDaKey)):
                                 ordem = str(p + 1)
                                 concatena = concatena + ordem + ": " + (valoresDaKey[p]).replace("\n", " ") + "\n"
@@ -919,7 +919,7 @@ class janelaDeCheckBook:
                             arquivoT.write("\n")
                             arquivoT.write("\n")
                             salvo = TRUE
-                            print("print sem etqieuta")
+
 
 
 
@@ -935,14 +935,13 @@ class janelaDeCheckBook:
             if salvo == True:
                 self.janelaDeSalvo = Tk()
                 self.janelaDeSalvo.title("Arquivo Salvo")
-                self.janelaDeSalvo.geometry("200x200")
-
+                self.janelaDeSalvo.geometry("400x100")
                 self.blocoSalvo = Frame(self.janelaDeSalvo)
                 self.blocoSalvo["pady"] = 20
                 self.blocoSalvo.pack()
 
                 self.mensagemSalvo = Label(self.blocoSalvo)
-                self.mensagemSalvo["text"] = "Arquivo Salvo"
+                self.mensagemSalvo["text"] = "Arquivo Salvo \n Procure por Relatório - PDF e renomeie o arquivo antes de gerar outro"
                 self.mensagemSalvo.pack()
 
                 self.botaoFecharSalvo = Button(self.blocoSalvo)
@@ -952,8 +951,8 @@ class janelaDeCheckBook:
                 self.botaoFecharSalvo.pack()
 
                 arquivo = ""
-                print("foi savlo")
-                salvo = False
+
+
 
             arquivoT.close()
 
@@ -973,12 +972,14 @@ class janelaDeCheckBook:
                 for x in f:
                     pdf.multi_cell(180, 10, txt=x, align="J")
 
-                a = pdf.output("RelatorioTeste.pdf")
-                #a.Close()
-                #a = filedialog.asksaveasfile(mode='w', defaultextension=".pdf")
+                #a = pdf.output(pdfPath + "\TesteProjeto.pdf", "F")
+
+
+                a = pdf.output("Relatorio - PDF.pdf")
+
                 f.close()
                 os.remove("relatorioT.txt")
-                #os.remove("Relatorio PDF.pdf")
+
         except :
             pass
 
@@ -1000,14 +1001,13 @@ class janelaDeCheckBook:
                     if cabecalhoDeGrafico == chave:
                         dadosParaGrafico = graficoDadosPlanilha[cabecalhoDeGrafico]
 
-            # dados = {'DATA': ['2010', '2010', '2001', '2005']}
-            # numeros = dados['DATA']
+
 
             numeros = dadosParaGrafico
 
             valorChaves = []
             valorOcorrencia = []
-            print(numeros)
+
 
             dicioNumeros = {}
 
@@ -1018,7 +1018,7 @@ class janelaDeCheckBook:
                 else:
                     dicioNumeros[n] = 1
 
-            print(dicioNumeros)
+
 
             for chave in dicioNumeros:
                 valorChaves.append(chave)
@@ -1026,8 +1026,7 @@ class janelaDeCheckBook:
             for chave in dicioNumeros:
                 valorOcorrencia.append(dicioNumeros[chave])
 
-            print(valorChaves)
-            print(valorOcorrencia)
+
             tituloGrafico = ("Frequência: " + cabecalhoDeGrafico)
             plt.rcParams.update({'font.size': 20})
 
@@ -1037,16 +1036,17 @@ class janelaDeCheckBook:
             plt.pie(x=valorOcorrencia, labels=valorChaves, autopct="%1.1f%%")
             plt.title(tituloGrafico)
             plt.show()
+            plt.savefig("Figura - 1.pdf")
+
+
         except:
             pass
+
 
         #plt.xlabel(valorOcorrencia)
         #plt.ylabel(valorChaves)
         #plt.plot(valorChaves, valorOcorrencia)
         #plt.show()
-
-
-
 
         self.janelaCheck.mainloop()
 
